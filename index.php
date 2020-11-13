@@ -34,10 +34,6 @@
         $yearTable = "<table class='myTable'>";
         $spanOld = 0;
         for($month = 1; $month<=12; $month++){
-            $rightMonth = $monthsOfYearAsNum[$month];
-            if($rightMonth==1){
-                $currentYear++;
-            }
             //month dates
             $numberOfdaysInMonth = cal_days_in_month(CAL_GREGORIAN, $monthsOfYearAsNum[$month], $currentYear);
             $yearTable .= "<tr><th class='month'>" . ($monthsOfYear[(int)$month] . "</th>");
@@ -46,94 +42,68 @@
             }
             //CW
             $yearTable .= "</tr><tr><th class='title-col'>CW</th>";
-            
             $daysToMo = false;
-            $fullWeeks = 0;
+            $volleWochen = 0;
             $startDat = 0;
-            $spanDone = false;
-
+            
+            $spanGemacht = false;
             for($day=1; $day<=$numberOfdaysInMonth; $day++){  
                 $rightMonth = $monthsOfYearAsNum[$month];
-                $weekName = date("l", mktime(0,0,0,$rightMonth,$day,$currentYear));
-                if($daysToMo == false && $weekName != "Monday" && $spanDone == false){
-                    if($spanOld != 0){
-                        $spanDone = true;
-                        $startDat ++;
-                        $span = 7 - $spanOld;
-                        $CW = (int)date("W", mktime(0,0,0,$rightMonth,$day,$currentYear));
-                        $yearTable .= "<th class='kw' colspan='$span'>" . $CW ."</th>";
-                        $fullWeeks = floor(($numberOfdaysInMonth - $startDat) / 7);
-                        error_log("if (". $CW .") " . $fullWeeks);//somethinbg is wrong here -> always 4 full weeks
-                    }else{
-                        $spanDone = true;
-                        $startDat ++;
-                        $CW = (int)date("W", mktime(0,0,0,$rightMonth,$day,$currentYear));
-                        $yearTable .= "<th class='kw'>" . $CW ."</th>";
-                        $fullWeeks = floor(($numberOfdaysInMonth - $startDat) / 7);
-                        error_log("else (" .$CW .") " . $fullWeeks);
-                    }  
-                }else{
-                    if($weekName=="Monday" && $fullWeeks != 0){
-                        $fullWeeks--;  
-                        $daysToMo = true;
-                        $CW = (int)date("W", mktime(0,0,0,$rightMonth,$day,$currentYear));
-                        $yearTable .= "<th class='kw' colspan= '7'>" . $CW . "</th>";
-                    }elseif ($fullWeeks == 0 && $weekName=="Monday"){
-                        $CW = (int)date("W", mktime(0,0,0,$rightMonth,$day,$currentYear));
-                        $yearTable .= "<th class='kw' colspan= '". strval($numberOfdaysInMonth - $day + 1) . "'>" . $CW ."</th>";
-                        $spanOld = $numberOfdaysInMonth - $day + 1;
-                        break;
-                    }
-                } 
-            }
-            //procent_id
-        /*
-            $yearTable .= "</tr><tr><th class='title-col'>Procent</th>";
-            $daysToMo = false;
-            $fullWeeks = 0;
-            $startDat = 0;
-            $spanDone = false;
-            //first week days problem
-            for($day=1; $day<=$numberOfdaysInMonth; $day++){
-                $rightMonth = $monthsOfYearAsNum[$month];
+                
                 $weekName = date("l", mktime(0,0,0,$rightMonth,$day,$currentYear));
                 
-                if($daysToMo == false And $weekName != "Monday" And $spanDone == false){
+                if($daysToMo == false And $weekName != "Monday" And $spanGemacht == false){
                     if ($spanOld != 0){
-                        $spanDone = true;
+                        $spanGemacht = true;
                         $startDat ++;
                         $span = 7 - $spanOld;
-                        $yearTable .= "<th class='noData' id='".(int)date("W", mktime(0,0,0,$rightMonth,$day,$currentYear))."' colspan='$span'>NoData</th>";
-                        $fullWeeks = floor(($numberOfdaysInMonth - $startDat) / 7);
+                        $yearTable .= "<th class='kw' colspan='$span'>" . (int)date("W", mktime(0,0,0,$rightMonth,$day,$currentYear)) ."</th>";
+                        $volleWochen = floor(($numberOfdaysInMonth - $startDat) / 7);
                     }
                     else{
-                        $spanDone = true;
+                        $spanGemacht = true;
                         $startDat ++;
-                        $yearTable .= "<th class='noData' id='".(int)date("W", mktime(0,0,0,$rightMonth,$day,$currentYear))."'>NoData</th>";
-                        $fullWeeks = floor(($numberOfdaysInMonth - $startDat) / 7);
-                    }  
+                        $yearTable .= "<th class='kw'>" . (int)date("W", mktime(0,0,0,$rightMonth,$day,$currentYear)) ."</th>";
+                        $volleWochen = floor(($numberOfdaysInMonth - $startDat) / 7);
+                    }
+
+                    
                 }
                 else{
-                    if($weekName=="Monday" And $fullWeeks != 0){
-                        $fullWeeks--;   
+                    
+                    if($weekName=="Monday" And $volleWochen != 0){
+                        $volleWochen--;
+                        
                         $daysToMo = true;
-                        $yearTable .= "<th class='noData' id='".(int)date("W", mktime(0,0,0,$rightMonth,$day,$currentYear))."' colspan= '7'>NoData</th>";
+                        $yearTable .= "<th class='kw' colspan= '7'>" . (int)date("W", mktime(0,0,0,$rightMonth,$day,$currentYear)) . "</th>";//hour, minute, second, month, day, year
                     }
-                    elseif ($fullWeeks == 0 And $weekName=="Monday"){
-                        $yearTable .= "<th class='noData' id='".(int)date("W", mktime(0,0,0,$rightMonth,$day,$currentYear))."' colspan= '". strval($numberOfdaysInMonth - $day + 1) . "'>NoData</th>";
-                        // echo "<p>" . strval($numberOfdaysInMonth - $day + 1) . "</p>"; 
+                    else if ($volleWochen == 0 And $weekName=="Monday"){
+                        $yearTable .= "<th class='kw' colspan= '". strval($numberOfdaysInMonth - $day + 1) . "'>" . (int)date("W", mktime(0,0,0,$rightMonth,$day,$currentYear)) ."</th>";
+                        echo "<p>" . strval($numberOfdaysInMonth - $day + 1) . "</p>"; 
                         $spanOld = $numberOfdaysInMonth - $day + 1;
                     break;
-                    }//$yearTable .= "<th class='noData' id='".(int)date("W", mktime(0,0,0,$rightMonth,$day,$currentYear))."'>NoData</th>";
-                }
+                    }
+                }  
             }
-        */
+            //procent_id
+            $yearTable .= "</tr><tr><th class='title-col'>Procent</th>";
+            $wday=1;
+            //first week days problem
+            for($day=1; $day<=$numberOfdaysInMonth; $day++){
+                (string)$dateString = (string)$currentYear . "-" . (string)sprintf("%02d", $monthsOfYearAsNum[$month]) . "-" . (string)sprintf("%02d", $day);
+                $weekDay = date("l", strtotime($dateString));
+                if($weekDay == "Monday"){
+                    $yearTable .= "<th class='noData' colspan='7'".$wday."' id='".(int)date("W", mktime(0,0,0,$rightMonth,$day,$currentYear))."'>NoData</th>";
+                    $wday=0;
+                }
+                $wday++;
+            }
         }
         $yearTable .= "</tr></table>";
 
         echo $yearTable; 
     ?>
-    <!-- <script>
+    <script>
         xhttp = new XMLHttpRequest();
         xhttp.open('GET', 'weeks.php?empid=181');
         xhttp.onload = () => {
@@ -143,10 +113,10 @@
             jsonObj.forEach(element => document.getElementById(element.WorkWeek).innerHTML = element.PlannedPercent)
         }
 		xhttp.send();
-    </script> -->
+    </script>
     <style>
-        /* div.year{background: #476e97; size: 300px; border: none; font-size: 20px; color: white; padding: 10px 30px; width: min-content; position: relative; left: 0px; margin: 2px;} */
-        /* div.username{background: green; size: 300px; border: none; font-size: 20px; color: white; padding: 5px 30px; width: min-content; position: relative; left: 0px; margin: 2px;} */
+        div.year{background: #476e97; size: 300px; border: none; font-size: 20px; color: white; padding: 10px 30px; width: min-content; position: relative; left: 0px; margin: 2px;}
+        div.username{background: green; size: 300px; border: none; font-size: 20px; color: white; padding: 5px 30px; width: min-content; position: relative; left: 0px; margin: 2px;}
         button.close{ background: #f44336; border: none; font-size: 20px; border-radius: 10px; color: white; padding: 10px 30px; cursor: pointer;}
         /*th, td {border: 1px solid black;}*/
         th, td {min-width: 20px;}
